@@ -1,0 +1,72 @@
+.app-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+h1, h2 {
+  color: #234e70;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+h2 {
+  margin-top: 30px;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  border-color: #234e70;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  background: #234e70;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #16364f;
+}
+
+.employee-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1fr 1.2fr;
+  align-items: center;
+}
+
+.employee-row span {
+  padding: 12px;
+  border: 1px solid #ddd;
+  overflow-wrap: anywhere;
+}
+
+.employee-heading {
+  font-weight: bold;
+  background: #eaf1f7;
+}

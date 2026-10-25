@@ -1,0 +1,190 @@
+import { useState } from "react";
+import "./App.css";
+
+function App() {
+  const [employees, setEmployees] = useState([]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [department, setDepartment] = useState("");
+  const [salary, setSalary] = useState("");
+  const [editingId, setEditingId] = useState(null);
+
+  const clearForm = () => {
+    setName("");
+    setEmail("");
+    setDepartment("");
+    setSalary("");
+    setEditingId(null);
+  };
+
+  const addEmployee = async () => {
+    if (!name.trim() || !email.trim() ||
+        !department.trim() || salary === "") {
+      alert("Please fill in all employee details");
+      return;
+    }
+
+    const emailExists = employees.find(
+      (emp) =>
+        emp.email.toLowerCase() === email.trim().toLowerCase() &&
+        emp.id !== editingId
+    );
+
+    if (emailExists) {
+      alert("Email already exists");
+      return;
+    }
+
+    const url = editingId === null
+      ? "http://localhost:5000/employees"
+      : `http://localhost:5000/employees/${editingId}`;
+
+    const method = editingId === null ? "POST" : "PUT";
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          department: department.trim(),
+          salary: Number(salary),
+          employees
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+        return;
+      }
+
+      const employee = {
+        id: editingId === null ? Date.now() : editingId,
+        name: name.trim(),
+        email: email.trim(),
+        department: department.trim(),
+        salary: Number(salary)
+      };
+
+      if (editingId === null) {
+        setEmployees([...employees, employee]);
+        alert("Employee added successfully");
+      } else {
+        setEmployees(employees.map((emp) =>
+          emp.id === editingId ? employee : emp
+        ));
+        alert("Employee updated successfully");
+      }
+
+      clearForm();
+    } catch (error) {
+      alert("Cannot connect to the backend. Check your server.");
+    }
+  };
+
+  const editEmployee = (emp) => {
+    setEditingId(emp.id);
+    setName(emp.name);
+    setEmail(emp.email);
+    setDepartment(emp.department);
+    setSalary(String(emp.salary));
+  };
+
+  const deleteEmployee = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/employees/${id}`,
+        { method: "DELETE" }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+        return;
+      }
+
+      setEmployees(employees.filter((emp) => emp.id !== id));
+    } catch (error) {
+      alert("Cannot connect to the backend. Check your server.");
+    }
+  };
+
+  return (
+    <div className="app-container">
+      <h1>Employee Management System</h1>
+      <h2>{editingId === null ? "Add Employee" : "Edit Employee"}</h2>
+
+      <form>
+        <input
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          placeholder="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          placeholder="Department"
+          value={department}
+          onChange={(e) => setDepartment(e.target.value)}
+        />
+        <input
+          placeholder="Salary"
+          type="number"
+          value={salary}
+          onChange={(e) => setSalary(e.target.value)}
+        />
+
+        <button type="button" onClick={addEmployee}>
+          {editingId === null ? "Add Employee" : "Update Employee"}
+        </button>
+
+        {editingId !== null && (
+          <button type="button" onClick={clearForm}>
+            Cancel
+          </button>
+        )}
+      </form>
+
+      <h2>Employee List</h2>
+
+      <div className="employee-row employee-heading">
+        <span>Name</span>
+        <span>Email</span>
+        <span>Department</span>
+        <span>Salary</span>
+        <span>Action</span>
+      </div>
+
+      {employees.length === 0 ? (
+        <p>No employees added yet.</p>
+      ) : (
+        employees.map((emp) => (
+          <div className="employee-row" key={emp.id}>
+            <span>{emp.name}</span>
+            <span>{emp.email}</span>
+            <span>{emp.department}</span>
+            <span>₹{emp.salary}</span>
+            <span>
+              <button type="button" onClick={() => editEmployee(emp)}>
+                Edit
+              </button>
+              <button type="button" onClick={() => deleteEmployee(emp.id)}>
+                Delete
+              </button>
+            </span>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+export default App;
