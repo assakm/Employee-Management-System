@@ -36,8 +36,8 @@ function App() {
     }
 
     const url = editingId === null
-      ? "http://localhost:5000/employees"
-      : `http://localhost:5000/employees/${editingId}`;
+      ? "https://employee-management-system-ltqw.onrender.com/employees"
+      : `https://employee-management-system-ltqw.onrender.com/employees/${editingId}`;
 
     const method = editingId === null ? "POST" : "PUT";
 
@@ -96,7 +96,7 @@ function App() {
   const deleteEmployee = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/employees/${id}`,
+        `https://employee-management-system-ltqw.onrender.com/employees/${id}`,
         { method: "DELETE" }
       );
 
