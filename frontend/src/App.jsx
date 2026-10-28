@@ -1,14 +1,35 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 function App() {
-  const [employees, setEmployees] = useState([]);
+  const [employees, setEmployees] = useState(() => {
+    const savedCookie = document.cookie
+      .split("; ")
+      .find((cookie) => cookie.startsWith("employees="));
+
+    if (!savedCookie) return [];
+
+    try {
+      return JSON.parse(
+        decodeURIComponent(savedCookie.substring("employees=".length))
+      );
+    } catch {
+      return [];
+    }
+  });
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [department, setDepartment] = useState("");
   const [salary, setSalary] = useState("");
   const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    document.cookie = `employees=${encodeURIComponent(
+      JSON.stringify(employees)
+    )}; max-age=604800; path=/; SameSite=Lax`;
+  }, [employees]);
 
   const clearForm = () => {
     setName("");
