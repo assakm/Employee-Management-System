@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import "./App.css";
 
@@ -17,7 +18,7 @@ function App() {
     setEditingId(null);
   };
 
-  const addEmployee = async () => {
+  const addEmployee = () => {
     if (!name.trim() || !email.trim() ||
         !department.trim() || salary === "") {
       alert("Please fill in all employee details");
@@ -35,54 +36,25 @@ function App() {
       return;
     }
 
-    const url = editingId === null
-      ? "https://employee-management-system-ltqw.onrender.com/employees"
-      : `https://employee-management-system-ltqw.onrender.com/employees/${editingId}`;
+    const employee = {
+      id: editingId === null ? Date.now() : editingId,
+      name: name.trim(),
+      email: email.trim(),
+      department: department.trim(),
+      salary: Number(salary)
+    };
 
-    const method = editingId === null ? "POST" : "PUT";
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          department: department.trim(),
-          salary: Number(salary),
-          employees
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message);
-        return;
-      }
-
-      const employee = {
-        id: editingId === null ? Date.now() : editingId,
-        name: name.trim(),
-        email: email.trim(),
-        department: department.trim(),
-        salary: Number(salary)
-      };
-
-      if (editingId === null) {
-        setEmployees([...employees, employee]);
-        alert("Employee added successfully");
-      } else {
-        setEmployees(employees.map((emp) =>
-          emp.id === editingId ? employee : emp
-        ));
-        alert("Employee updated successfully");
-      }
-
-      clearForm();
-    } catch (error) {
-      alert("Cannot connect to the backend. Check your server.");
+    if (editingId === null) {
+      setEmployees([...employees, employee]);
+      alert("Employee added successfully");
+    } else {
+      setEmployees(employees.map((emp) =>
+        emp.id === editingId ? employee : emp
+      ));
+      alert("Employee updated successfully");
     }
+
+    clearForm();
   };
 
   const editEmployee = (emp) => {
@@ -93,23 +65,11 @@ function App() {
     setSalary(String(emp.salary));
   };
 
-  const deleteEmployee = async (id) => {
-    try {
-      const response = await fetch(
-        `https://employee-management-system-ltqw.onrender.com/employees/${id}`,
-        { method: "DELETE" }
-      );
+  const deleteEmployee = (id) => {
+    setEmployees(employees.filter((emp) => emp.id !== id));
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message);
-        return;
-      }
-
-      setEmployees(employees.filter((emp) => emp.id !== id));
-    } catch (error) {
-      alert("Cannot connect to the backend. Check your server.");
+    if (editingId === id) {
+      clearForm();
     }
   };
 
@@ -118,7 +78,7 @@ function App() {
       <h1>Employee Management System</h1>
       <h2>{editingId === null ? "Add Employee" : "Edit Employee"}</h2>
 
-      <form>
+      <form onSubmit={(e) => e.preventDefault()}>
         <input
           placeholder="Name"
           value={name}
